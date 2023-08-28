@@ -7,28 +7,28 @@ import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
 
-fun Route.PassengerRouting(){
+fun Route.passengerRouting(){
     route("/PassengerBooking"){
         post {
             val pass = call.receive<Passer>()
             var fli: MutableList<Flight> = mutableListOf()
-            var passenger:Passenger = Passenger(pass.id,pass.name,fli)
+            var passenger = Passenger(pass.id,pass.name,fli)
             val esp= BookingSystemPass.add(passenger)
-            if (esp) call.respondText("INSERTED SUCCESSFULLY", status = HttpStatusCode.OK)
-            else call.respondText("ENTER CORRECT DETAILS", status = HttpStatusCode.BadRequest)
+            if (esp) call.respond(HttpStatusCode.OK,Message("INSERTED SUCCESSFULLY") )
+             else call.respond(HttpStatusCode.BadRequest,Message("ENTER CORRECT DETAILS"))
         }
 
         delete("{id?}") {
-            val id = call.parameters["id"] ?:return@delete call.respondText("ENTER ID ", status = HttpStatusCode.BadRequest)
+            val id = call.parameters["id"] ?:return@delete call.respond(HttpStatusCode.BadRequest,Message("ENTER ID "))
             val esp= BookingSystemPass.removeIf { it.id==id }
-            if(esp) call.respondText("REMOVED SUCCESSFULLY", status = HttpStatusCode.OK)
-            else call.respondText("ENTER CORRECT FLIGHT NUMBER", status = HttpStatusCode.NotFound)
+            if(esp) call.respond(HttpStatusCode.OK,Message("REMOVED SUCCESSFULLY"))
+            else call.respond(HttpStatusCode.NotFound,Message("ENTER CORRECT FLIGHT NUMBER"))
         }
 
         get("{id?}") {
-            val id = call.parameters["id"] ?:return@get call.respondText("ENTER ID", status = HttpStatusCode.BadRequest)
+            val id = call.parameters["id"] ?:return@get call.respond(HttpStatusCode.BadRequest,Message("ENTER ID "))
             var pass=BookingSystemPass.filter { it.id == id }
-            if(pass.isEmpty()) call.respondText ("NO FLIGHTS WITH ID : $id", status = HttpStatusCode.Accepted)
+            if(pass.isEmpty()) call.respond (HttpStatusCode.Accepted,Message("NO FLIGHTS WITH ID : $id"))
             else call.respond(pass)
         }
 

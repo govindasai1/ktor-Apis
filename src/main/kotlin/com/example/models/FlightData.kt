@@ -1,7 +1,8 @@
 package com.example.models
 
 import kotlinx.serialization.Serializable
-
+@Serializable
+data class Message(var message:String)
 @Serializable
 data class Flight (var flightNumber:String,var source:String,var destination:String,var departureTime:String,var arrivalTime:String)
 @Serializable

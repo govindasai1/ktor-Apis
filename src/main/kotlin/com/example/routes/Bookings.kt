@@ -1,3 +1,5 @@
+@file:Suppress("NAME_SHADOWING")
+
 package com.example.routes
 
 import com.example.models.*
@@ -21,15 +23,16 @@ fun Route.bookingRouting(){
                         it.flights.addAll(list)
                     }
                 }
-            call.respondText("FLIGHT BOOKED FOR PASSSENGER ID : ${pass.id}", status = HttpStatusCode.OK)
+            call.respond(HttpStatusCode.OK,Message("FLIGHT BOOKED FOR PASSENGER ID : ${pass.id}"))
         }
             else
-                call.respondText("FLIGHT NOT FOUND", status = HttpStatusCode.BadRequest)
+                call.respond(HttpStatusCode.BadRequest,Message("FLIGHT NOT FOUND") )
         }
 
         delete {
             val pass = call.receive<PassFlight>()
-            BookingSystemPass.map { if(it.id == pass.id){
+            BookingSystemPass.map { it ->
+                if(it.id == pass.id){
                 it.flights.removeIf { it.flightNumber == pass.flightNumber }
             }
             }
@@ -37,12 +40,12 @@ fun Route.bookingRouting(){
         }
 
         get("totaltime/{id?}") {
-            var id=call.parameters["id"] ?:return@get call.respondText("ENTER ID", status = HttpStatusCode.OK)
-            var totalTime:Float=0f
+            var id=call.parameters["id"] ?:return@get call.respond(HttpStatusCode.OK,Message("ENTER ID"))
+            var totalTime =0f
             var list: List<Passenger> =BookingSystemPass.filter { it.id == id }
             if(list.isNotEmpty()){
-                list.map { it.flights.map { totalTime+=timeTaken(it.departureTime,it.arrivalTime) } }
-                call.respondText("TOTAL TRAVEL TIME IS $totalTime", status = HttpStatusCode.Accepted)
+                list.map { it -> it.flights.map { totalTime+=timeTaken(it.departureTime,it.arrivalTime) } }
+                call.respond(HttpStatusCode.Accepted,Message("TOTAL TRAVEL TIME IS $totalTime") )
             }
         }
 
